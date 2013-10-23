@@ -4,15 +4,24 @@ var ctx = canvas.getContext("2d");
 
 var lines = [];
 var rects = [];
-var rays = 600;
+var columns = 300;
 var depths = [];
 var colors = [];
+var rayWidth = Math.floor(canvas.width / columns + 0.5);
+var depthConstant = 9000000;
+var wallHeight = 150;
 
-var speed = 3;
+var speed = 4;
 var pangle = 0;
 var px = canvas.width/2;
 var py = canvas.height/2;
-var visionCone = Math.PI / 2;
+var visionCone = Math.PI / 2; // for perspectiveRayCasting
+var visionWidth = columns; // for flatRayCasting
+var visionHeight = Math.PI / 4;
+var screenHeight = 100;
+var screenLength = canvas.width;
+var screenDist = (screenLength / 2) * Math.sin(visionCone / 2);
+var columns = screenLength / 4;
 
 var mouseX = 0;
 var mouseY = 0;
@@ -24,6 +33,7 @@ var qDown = false;
 var eDown = false;
 
 var debugGraphics = false;
+var perspective = true;
 
 var s = [];
 
@@ -35,7 +45,7 @@ function setup() {
 	for (var i=0; i<20; i++)
 		addRect(randomRect());
 	
-	for (var i=0; i<rays; i++) {
+	for (var i=0; i<columns; i++) {
 		depths.push(1000000);
 		s.push("");
 	}
@@ -88,44 +98,71 @@ function draw() {
 		drawVisionLines();
 
 	} else {
-
-		castRays();
+		if (perspective)
+			perspectiveRayCast();
+		else
+			parallelRayCast();
 
 		//scale color with depth
-		for (var i=0; i<rays; i++) {
-			var c;
-			if (depths[i] > 0)
-				c = Math.floor(220 - 220 / 75000 * Math.pow(depths[i], 2));
-			else
-				c = 0;
-
-			var r = colors[i] == 0 ? c : 0;
-			var g = colors[i] == 1 ? c : 0;
-			var b = colors[i] == 2 ? c : 0;
-
-			s[i] = "rgb("+r+","+g+","+b+")";
-			ctx.fillStyle = s[i];
-			ctx.fillRect(i*2+1,1, 2,800);
+		for (var i=0; i<columns; i++) {
+			drawRay(i);
 		}
 	}
 
 	drawBorder();
 }
 
-function castRays() {
-	for (var i=0; i<rays; i++)
-		depths[i] = 10000000;
+function drawRay(i) {
+	var c;
+	if (depths[i] > 0)
+		c = Math.floor(220 - 220 / depthConstant * Math.pow(depths[i], 2));
+	else
+		c = 0;
 
-	var theta = pangle - visionCone / 2;
+	var r = colors[i] == 0 ? c : 0;
+	var g = colors[i] == 1 ? c : 0;
+	var b = colors[i] == 2 ? c : 0;
+	s[i] = "rgb("+r+","+g+","+b+")";
 
-	for (var i=0; i<rays; i++) {
-		var q = [px, py];
-		var s = [700 * Math.cos(theta),
-				 700 * Math.sin(theta)];
+	ctx.fillStyle = "rgb(0,0,0)";
+	if (depths[i] == 0)
+		ctx.fillRect(i*rayWidth+1, 1,
+					 rayWidth, canvas.height);
+	else {
+		var heightFraction = wallHeight / (depths[i] * Math.tan(visionHeight));
+		var apparentHeight = (canvas.height / 2) * heightFraction;
 
-	 	for (var j=0; j<lines.length; j++) {
-			var p = lines[j][0];
-			var r = pointSum(lines[j][1], negative(p));
+		//ceiling
+		ctx.fillRect(i*rayWidth+1, 1,
+					 rayWidth, canvas.height / 2 - apparentHeight);
+		//floor
+		ctx.fillRect(i*rayWidth+1, canvas.height / 2 + apparentHeight,
+					 rayWidth, canvas.height / 2 - apparentHeight);
+
+		//figure
+		ctx.fillStyle = s[i];
+		ctx.fillRect(i*rayWidth + 1, canvas.height / 2 - apparentHeight,
+					 rayWidth, apparentHeight * 2 + 1);
+	}
+}
+
+function parallelRayCast() {
+	var lineAngle = pangle - Math.PI / 2;
+	for (var i=0; i<columns; i++) {
+		//clear depths
+		depths[i] = 0;
+
+		var dist = Math.floor(columns / 2 - i);
+
+		var rx = px + dist * Math.cos(lineAngle);
+		var ry = py + dist * Math.sin(lineAngle);
+		var q = [rx, ry];
+		var s = [700 * Math.cos(pangle),
+				 700 * Math.sin(pangle)];
+
+		for (var j=0; j<lines.length; j++) {
+			var p = lines[j][0]; //p is the first point of the segment
+			var r = pointSum(lines[j][1], negative(p)); //p+r is the second
 
 			var t = crossProduct(pointSum(q, negative(p)), s) /
 					crossProduct(r, s);
@@ -134,17 +171,58 @@ function castRays() {
 
 			if (0 <= t && t <= 1 &&	0 <= u && u <= 1) {
 				var point = pointSum(p, [t*r[0], t*r[1]]);
-				x = Math.sqrt((point[0] - px) * (point[0] - px) +
-							  (point[1] - py) * (point[1] - py));
+				x = Math.sqrt((point[0] - rx) * (point[0] - rx) +
+							  (point[1] - ry) * (point[1] - ry));
 
-				if (x < depths[i]) {
+				if (x < depths[i] || depths[i] == 0) {
 					depths[i] = x;
 					colors[i] = lines[j][2];
 				}
 			}
 		}
+	}
+}
 
-		theta += visionCone / rays;
+function perspectiveRayCast() {
+	for (var i=0; i<columns; i++)
+		depths[i] = 0;
+
+	for (var i=0; i<columns; i++) {
+		var columnWidth = screenLength / columns;
+		var displacement = columnWidth * i - screenLength / 2;
+		var angleToPix = Math.atan2(displacement, screenDist);
+		var theta = pangle + angleToPix;
+
+		var q = [px, py];
+		var s = [1000 * Math.cos(theta),
+				 1000 * Math.sin(theta)];
+
+	 	for (var j=0; j<lines.length; j++) {
+			var p = lines[j][0]; //p is the first point of the segment
+			var r = pointSum(lines[j][1], negative(p)); //p+r is the second
+
+			var t = crossProduct(pointSum(q, negative(p)), s) /
+					crossProduct(r, s);
+			var u = crossProduct(pointSum(q, negative(p)), r) /
+					crossProduct(r, s);
+
+			if (0 <= t && t <= 1 &&	0 <= u && u <= 1) {
+				var point = pointSum(p, [t*r[0], t*r[1]]);
+				var l = Math.sqrt((point[0] - px) * (point[0] - px) +
+								  (point[1] - py) * (point[1] - py));
+
+				//tweak depth based on distance from center
+				var alpha = Math.PI/2 - Math.abs(theta - pangle);
+				var c = Math.sin(alpha) * l;
+
+				if (c < depths[i] || depths[i] == 0) {
+					depths[i] = c;
+					colors[i] = lines[j][2];
+				}
+			}
+		}
+
+		theta += visionCone / columns;
 	}
 }
 
