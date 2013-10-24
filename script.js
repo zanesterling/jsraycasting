@@ -9,17 +9,16 @@ var depths = [];
 var colors = [];
 var rayWidth = Math.floor(canvas.width / columns + 0.5);
 var depthConstant = 9000000;
-var wallHeight = 150;
+var wallHeight = 30;
 
 var speed = 4;
 var pangle = 0;
 var px = canvas.width/2;
 var py = canvas.height/2;
-var visionCone = Math.PI / 2; // for perspectiveRayCasting
-var visionWidth = columns; // for flatRayCasting
+var visionCone = Math.PI/2 * 7/9;
 var visionHeight = Math.PI / 4;
-var screenHeight = 100;
 var screenLength = canvas.width;
+var screenHeight = 100;
 var screenDist = (screenLength / 2) * Math.sin(visionCone / 2);
 var columns = screenLength / 4;
 
@@ -42,7 +41,7 @@ setup();
 setInterval(run, 1000 / fps);
 
 function setup() {
-	for (var i=0; i<20; i++)
+	for (var i=0; i<40; i++)
 		addRect(randomRect());
 	
 	for (var i=0; i<columns; i++) {
