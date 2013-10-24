@@ -7,15 +7,17 @@ var rects = [];
 var columns = 300;
 var depths = [];
 var colors = [];
-var rayWidth = Math.floor(canvas.width / columns + 0.5);
 var depthConstant = 9000000;
-var wallHeight = 30;
+var wallHeight = 20;
+var columnWidth = Math.floor((canvas.width / columns) + 0.5);
 
-var speed = 4;
+
+var speed = 3;
+var turnSpeed = Math.PI / 50;
 var pangle = 0;
 var px = canvas.width/2;
 var py = canvas.height/2;
-var visionCone = Math.PI/2 * 7/9;
+var visionCone = Math.PI;
 var visionHeight = Math.PI / 4;
 var screenLength = canvas.width;
 var screenHeight = 100;
@@ -80,9 +82,9 @@ function update() {
 	}
 
 	if (aDown)
-		pangle -= 0.03;
+		pangle -= turnSpeed;
 	if (dDown)
-		pangle += 0.03;
+		pangle += turnSpeed;
 }
 
 function draw() {
@@ -94,7 +96,15 @@ function draw() {
 		for (var i=0; i<lines.length; i++)
 			drawLine(lines[i]);
 
-		drawVisionLines();
+		//drawVisionLines();
+		ctx.fillStyle = "rgb(255,0,0)";
+		ctx.moveTo(px + Math.cos(pangle),
+				   py + Math.sin(pangle));
+		for (var dt = Math.PI / 4; dt < Math.PI * 9 / 4; dt += Math.PI / 2)
+			ctx.lineTo(px + 5*Math.cos(pangle + dt),
+					   py + 5*Math.sin(pangle + dt));
+
+		ctx.fill();
 
 	} else {
 		if (perspective)
@@ -124,24 +134,31 @@ function drawRay(i) {
 	s[i] = "rgb("+r+","+g+","+b+")";
 
 	ctx.fillStyle = "rgb(0,0,0)";
-	if (depths[i] == 0)
-		ctx.fillRect(i*rayWidth+1, 1,
-					 rayWidth, canvas.height);
-	else {
+	if (depths[i] == 0) {
+		ctx.fillStyle = "rgb(0,0,45)";
+		ctx.fillRect(i*columnWidth+1, 1,
+					 columnWidth, canvas.height/2);
+
+		ctx.fillStyle = "rgb(10,10,10)";
+		ctx.fillRect(i*columnWidth+1, canvas.height/2 + 1,
+					 columnWidth, canvas.height/2);
+	} else {
 		var heightFraction = wallHeight / (depths[i] * Math.tan(visionHeight));
 		var apparentHeight = (canvas.height / 2) * heightFraction;
 
 		//ceiling
-		ctx.fillRect(i*rayWidth+1, 1,
-					 rayWidth, canvas.height / 2 - apparentHeight);
+		ctx.fillStyle = "rgb(0,0,45)";
+		ctx.fillRect(i*columnWidth+1, 1,
+					 columnWidth, canvas.height / 2 - apparentHeight);
 		//floor
-		ctx.fillRect(i*rayWidth+1, canvas.height / 2 + apparentHeight,
-					 rayWidth, canvas.height / 2 - apparentHeight);
+		ctx.fillStyle = "rgb(10,10,10)";
+		ctx.fillRect(i*columnWidth+1, canvas.height / 2 + apparentHeight,
+					 columnWidth, canvas.height / 2 - apparentHeight);
 
 		//figure
 		ctx.fillStyle = s[i];
-		ctx.fillRect(i*rayWidth + 1, canvas.height / 2 - apparentHeight,
-					 rayWidth, apparentHeight * 2 + 1);
+		ctx.fillRect(i*columnWidth + 1, canvas.height / 2 - apparentHeight,
+					 columnWidth, apparentHeight * 2 + 1);
 	}
 }
 
@@ -264,13 +281,13 @@ function mouseMove() {
 }
 
 function keyDown() {
-	if (event.keyCode == 87) {
+	if (event.keyCode == 87 || event.keyCode == 74) {
 		wDown = true;
-	} else if (event.keyCode == 65) {
+	} else if (event.keyCode == 65 || event.keyCode == 72) {
 		aDown = true;
-	} else if (event.keyCode == 83) {
+	} else if (event.keyCode == 83 || event.keyCode == 75) {
 		sDown = true;
-	} else if (event.keyCode == 68) {
+	} else if (event.keyCode == 68 || event.keyCode == 76) {
 		dDown = true;
 	} else if (event.keyCode == 81) {
 		qDown = true;
@@ -283,18 +300,14 @@ function keyDown() {
 }
 
 function keyUp() {
-	if (event.keyCode == 87) {
+	if (event.keyCode == 87 || event.keyCode == 74) {
 		wDown = false;
-	} else if (event.keyCode == 65) {
+	} else if (event.keyCode == 65 || event.keyCode == 72) {
 		aDown = false;
-	} else if (event.keyCode == 83) {
+	} else if (event.keyCode == 83 || event.keyCode == 75) {
 		sDown = false;
-	} else if (event.keyCode == 68) {
+	} else if (event.keyCode == 68 || event.keyCode == 76) {
 		dDown = false;
-	} else if (event.keyCode == 74) {
-		jDown = false;
-	} else if (event.keyCode == 75) {
-		kDown = false;
 	} else if (event.keyCode == 81) {
 		qDown = false;
 	} else if (event.keyCode == 69) {
