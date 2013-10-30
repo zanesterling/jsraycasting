@@ -9,7 +9,7 @@ var rects = [];
 var depths = [];
 var colors = [];
 var ratios = []; //how far along the wall it is
-var columns = 600;
+var columns = 300;
 var columnWidth = Math.floor((canvas.width / columns) + 0.5);
 var depthConstant = 9000000;
 var wallHeight = 20;
@@ -37,6 +37,7 @@ var flag = false;
 
 var debugGraphics = false;
 var perspective = true;
+var pixelByPixel = true;
 
 var s = [];
 var wallTexture;
@@ -49,6 +50,9 @@ function setup() {
 	setupLevel();
 	
 	for (var i=0; i<columns; i++) {
+		if (Math.random() < 0.04)
+			addRect(randomRect());
+
 		depths.push(1000000);
 		s.push("");
 	}
@@ -163,19 +167,23 @@ function drawRay(i) {
 		//figure
 		var px = txctx.getImageData(0, 0, 10, 10);
 
-		for (var j=0; j<10; j++) {
-			if (!flag) {
-				console.log(ratios);
-				flag = true;
+		if (pixelByPixel) {
+			for (var j=0; j<10; j++) {
+				if (!flag) {
+					console.log(ratios);
+					flag = true;
+				}
+				var index = (Math.floor(ratios[i] * 10) + j * 10) * 4;
+				ctx.fillStyle = "rgb(" + px.data[index] + "," +
+								px.data[index + 1] + ","  + 
+								px.data[index + 2] + ")";
+				ctx.fillRect(i*columnWidth + 1, canvas.height / 2 - apparentHeight + apparentHeight * j / 5,
+					 	 	 columnWidth, apparentHeight / 5 + 1);
 			}
-			var index = (Math.floor(ratios[i] * 10) + j * 10) * 4;
-			ctx.fillStyle = "rgb(" + px.data[index] + "," +
-							px.data[index + 1] + ","  + 
-							px.data[index + 2] + ")";
-			//ctx.fillStyle = s[i];
-			ctx.fillRect(i*columnWidth + 1, canvas.height / 2 - apparentHeight + apparentHeight * j / 5,
-					 	 columnWidth, apparentHeight / 5 + 1);
-		}
+		} else
+			ctx.drawImage(wallTexture, Math.floor(ratios[i] * 10), 0, 1, 10,
+						  i*columnWidth + 1, canvas.height / 2 - apparentHeight,
+						  columnWidth, apparentHeight * 2 + 1);
 	}
 }
 
