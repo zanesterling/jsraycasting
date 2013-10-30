@@ -43,10 +43,10 @@ function randomLine() {
 function newRect(x, y, w, h) {
 	points = []
 
-	points.push([x-w, y-h]);
-	points.push([x+w, y-h]);
+	points.push([x,   y]);
+	points.push([x+w, y]);
 	points.push([x+w, y+h]);
-	points.push([x-w, y+h]);
+	points.push([x,   y+h]);
 
 	return points;
 }
@@ -58,4 +58,12 @@ function randomRect() {
 	var h = 100 * Math.random();
 
 	return newRect(x, y, w, h);
+}
+
+function addRect(rect) {
+	rects.push(rect);
+	lines.push([rect[0], rect[1]]);
+	lines.push([rect[1], rect[2]]);
+	lines.push([rect[2], rect[3]]);
+	lines.push([rect[3], rect[0]]);
 }

@@ -1,16 +1,17 @@
 var fps = 60;
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
+var textureAtlas = document.createElement("canvas");
+var txctx = textureAtlas.getContext("2d");
 
 var lines = [];
 var rects = [];
-var columns = 300;
 var depths = [];
 var colors = [];
+var columns = 300;
+var columnWidth = Math.floor((canvas.width / columns) + 0.5);
 var depthConstant = 9000000;
 var wallHeight = 20;
-var columnWidth = Math.floor((canvas.width / columns) + 0.5);
-
 
 var speed = 3;
 var turnSpeed = Math.PI / 50;
@@ -32,27 +33,31 @@ var sDown = false;
 var dDown = false;
 var qDown = false;
 var eDown = false;
+var flag = false;
 
 var debugGraphics = false;
 var perspective = true;
 
 var s = [];
+var wallTexture;
 
 setup();
 
 setInterval(run, 1000 / fps);
 
 function setup() {
-	for (var i=0; i<40; i++)
-		addRect(randomRect());
+	setupLevel();
 	
 	for (var i=0; i<columns; i++) {
 		depths.push(1000000);
 		s.push("");
 	}
 
-	canvas.tabIndex = 0;
 	canvas.focus();
+
+	wallTexture = document.getElementById("wall");
+
+	txctx.drawImage(wallTexture, 0,0, 10,10);
 }
 
 function run() {
@@ -135,11 +140,11 @@ function drawRay(i) {
 
 	ctx.fillStyle = "rgb(0,0,0)";
 	if (depths[i] == 0) {
-		ctx.fillStyle = "rgb(0,0,45)";
+		ctx.fillStyle = "rgb(0,0,60)";
 		ctx.fillRect(i*columnWidth+1, 1,
 					 columnWidth, canvas.height/2);
 
-		ctx.fillStyle = "rgb(10,10,10)";
+		ctx.fillStyle = "rgb(20,20,20)";
 		ctx.fillRect(i*columnWidth+1, canvas.height/2 + 1,
 					 columnWidth, canvas.height/2);
 	} else {
@@ -147,18 +152,26 @@ function drawRay(i) {
 		var apparentHeight = (canvas.height / 2) * heightFraction;
 
 		//ceiling
-		ctx.fillStyle = "rgb(0,0,45)";
+		ctx.fillStyle = "rgb(0,0,60)";
 		ctx.fillRect(i*columnWidth+1, 1,
 					 columnWidth, canvas.height / 2 - apparentHeight);
 		//floor
-		ctx.fillStyle = "rgb(10,10,10)";
+		ctx.fillStyle = "rgb(20,20,20)";
 		ctx.fillRect(i*columnWidth+1, canvas.height / 2 + apparentHeight,
 					 columnWidth, canvas.height / 2 - apparentHeight);
 
 		//figure
-		ctx.fillStyle = s[i];
-		ctx.fillRect(i*columnWidth + 1, canvas.height / 2 - apparentHeight,
-					 columnWidth, apparentHeight * 2 + 1);
+		var px = txctx.getImageData(0, 0, 1, 10);
+
+		for (var j=0; j<10; j++) {
+			var index = j*4;
+			ctx.fillStyle = "rgb(" + px.data[index] + "," +
+							px.data[index + 1] + ","  + 
+							px.data[index + 2] + ")";
+			//ctx.fillStyle = s[i];
+			ctx.fillRect(i*columnWidth + 1, canvas.height / 2 - apparentHeight + apparentHeight * j / 5,
+					 	 columnWidth, apparentHeight / 5 + 1);
+		}
 	}
 }
 
@@ -281,13 +294,13 @@ function mouseMove() {
 }
 
 function keyDown() {
-	if (event.keyCode == 87 || event.keyCode == 74) {
+	if (event.keyCode == 87 || event.keyCode == 75) {
 		wDown = true;
 	} else if (event.keyCode == 65 || event.keyCode == 72) {
 		aDown = true;
-	} else if (event.keyCode == 83 || event.keyCode == 75) {
+	} else if (event.keyCode == 83 || event.keyCode == 74) {
 		sDown = true;
-	} else if (event.keyCode == 68 || event.keyCode == 76) {
+	} else if (event.keyChar == 68 || event.keyCode == 76) {
 		dDown = true;
 	} else if (event.keyCode == 81) {
 		qDown = true;
@@ -300,11 +313,11 @@ function keyDown() {
 }
 
 function keyUp() {
-	if (event.keyCode == 87 || event.keyCode == 74) {
+	if (event.keyCode == 87 || event.keyCode == 75) {
 		wDown = false;
 	} else if (event.keyCode == 65 || event.keyCode == 72) {
 		aDown = false;
-	} else if (event.keyCode == 83 || event.keyCode == 75) {
+	} else if (event.keyCode == 83 || event.keyCode == 74) {
 		sDown = false;
 	} else if (event.keyCode == 68 || event.keyCode == 76) {
 		dDown = false;
@@ -315,10 +328,3 @@ function keyUp() {
 	}
 }
 
-function addRect(rect) {
-	rects.push(rect);
-	lines.push([rect[0], rect[1], Math.floor(3 * Math.random())]);
-	lines.push([rect[1], rect[2], Math.floor(3 * Math.random())]);
-	lines.push([rect[2], rect[3], Math.floor(3 * Math.random())]);
-	lines.push([rect[3], rect[0], Math.floor(3 * Math.random())]);
-}
