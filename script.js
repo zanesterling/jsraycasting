@@ -8,7 +8,8 @@ var lines = [];
 var rects = [];
 var depths = [];
 var colors = [];
-var columns = 300;
+var ratios = []; //how far along the wall it is
+var columns = 600;
 var columnWidth = Math.floor((canvas.width / columns) + 0.5);
 var depthConstant = 9000000;
 var wallHeight = 20;
@@ -23,7 +24,6 @@ var visionHeight = Math.PI / 4;
 var screenLength = canvas.width;
 var screenHeight = 100;
 var screenDist = (screenLength / 2) * Math.sin(visionCone / 2);
-var columns = screenLength / 4;
 
 var mouseX = 0;
 var mouseY = 0;
@@ -161,10 +161,14 @@ function drawRay(i) {
 					 columnWidth, canvas.height / 2 - apparentHeight);
 
 		//figure
-		var px = txctx.getImageData(0, 0, 1, 10);
+		var px = txctx.getImageData(0, 0, 10, 10);
 
 		for (var j=0; j<10; j++) {
-			var index = j*4;
+			if (!flag) {
+				console.log(ratios);
+				flag = true;
+			}
+			var index = (Math.floor(ratios[i] * 10) + j * 10) * 4;
 			ctx.fillStyle = "rgb(" + px.data[index] + "," +
 							px.data[index + 1] + ","  + 
 							px.data[index + 2] + ")";
@@ -245,6 +249,7 @@ function perspectiveRayCast() {
 				var c = Math.sin(alpha) * l;
 
 				if (c < depths[i] || depths[i] == 0) {
+					ratios[i] = t;
 					depths[i] = c;
 					colors[i] = lines[j][2];
 				}
