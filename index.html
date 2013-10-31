@@ -2,16 +2,16 @@
 <html>
 	<head>
 		<title>Warp</title>
+
+		<img id="wall" src="textures/wall.png"
+			 style="visibility:hidden" width=10 height=10>
 	</head>
 
 	<body>
 		<div id="draw">
-			<canvas id="canvas" width=600 height=400 tabindex=1
-					onmousemove="mouseMove()" onkeydown="keyDown()"
-					onkeyup="keyUp()">
+			<canvas id="canvas" width=1200 height=800 tabindex=1
+					onkeydown="keyDown()" onkeyup="keyUp()">
 			</canvas>
-			<img id="wall" src="textures/wall.png"
-				 style="visibility:hidden">
 			<img id="level" src="textures/level.png"
 				 style="visibility:hidden">
 		</div>

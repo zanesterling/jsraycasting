@@ -25,8 +25,6 @@ var screenLength = canvas.width;
 var screenHeight = 100;
 var screenDist = (screenLength / 2) * Math.sin(visionCone / 2);
 
-var mouseX = 0;
-var mouseY = 0;
 var wDown = false;
 var aDown = false;
 var sDown = false;
@@ -59,9 +57,14 @@ function setup() {
 
 	canvas.focus();
 
-	wallTexture = document.getElementById("wall");
+	textureAtlas.width = 10;
+	textureAtlas.height = 10;
 
-	txctx.drawImage(wallTexture, 0,0, 10,10);
+	wallTexture = new Image();
+	wallTexture.onload = function() {
+		txctx.drawImage(wallTexture, 0, 0);
+	}
+	wallTexture.src = "textures/wall.png";
 }
 
 function run() {
@@ -97,6 +100,7 @@ function update() {
 }
 
 function draw() {
+
 	clearCanvas();
 
 	if (debugGraphics) {
@@ -170,7 +174,7 @@ function drawRay(i) {
 		if (pixelByPixel) {
 			for (var j=0; j<10; j++) {
 				if (!flag) {
-					console.log(ratios);
+					console.log(px);
 					flag = true;
 				}
 				var index = (Math.floor(ratios[i] * 10) + j * 10) * 4;
@@ -301,11 +305,6 @@ function drawVisionLines() {
 	ctx.stroke();
 }
 
-function mouseMove() {
-	mouseX = event.clientX;
-	mouseY = event.clientY;
-}
-
 function keyDown() {
 	if (event.keyCode == 87 || event.keyCode == 75) {
 		wDown = true;
@@ -313,7 +312,7 @@ function keyDown() {
 		aDown = true;
 	} else if (event.keyCode == 83 || event.keyCode == 74) {
 		sDown = true;
-	} else if (event.keyChar == 68 || event.keyCode == 76) {
+	} else if (event.keyCode == 68 || event.keyCode == 76) {
 		dDown = true;
 	} else if (event.keyCode == 81) {
 		qDown = true;
@@ -339,5 +338,6 @@ function keyUp() {
 	} else if (event.keyCode == 69) {
 		eDown = false;
 	}
+	console.log(event.keyCode);
 }
 
