@@ -48,9 +48,6 @@ function setup() {
 	setupLevel();
 	
 	for (var i=0; i<columns; i++) {
-		if (Math.random() < 0.04)
-			addRect(randomRect());
-
 		depths.push(1000000);
 		s.push("");
 	}
