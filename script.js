@@ -32,10 +32,8 @@ var keys = {
 	 q : false,
 	 e : false
 }
-var flag = false;
 
 var debugGraphics = false;
-var perspective = true;
 var pixelByPixel = true;
 
 var wallTexture;
@@ -115,10 +113,7 @@ function draw() {
 		ctx.fill();
 
 	} else {
-		if (perspective)
-			perspectiveRayCast();
-		else
-			parallelRayCast();
+		perspectiveRayCast();
 
 		//scale color with depth
 		for (var i=0; i<columns; i++) {
@@ -168,42 +163,6 @@ function drawRay(i) {
 			ctx.drawImage(wallTexture, Math.floor(ratios[i] * 10), 0, 1, 10,
 						  i*columnWidth + 1, canvas.height / 2 - apparentHeight,
 						  columnWidth, apparentHeight * 2 + 1);
-	}
-}
-
-function parallelRayCast() {
-	var lineAngle = pangle - Math.PI / 2;
-	for (var i=0; i<columns; i++) {
-		//clear depths
-		depths[i] = 0;
-
-		var dist = Math.floor(columns / 2 - i);
-
-		var rx = px + dist * Math.cos(lineAngle);
-		var ry = py + dist * Math.sin(lineAngle);
-		var q = [rx, ry];
-		var s = [700 * Math.cos(pangle),
-				 700 * Math.sin(pangle)];
-
-		for (var j=0; j<lines.length; j++) {
-			var p = lines[j][0]; //p is the first point of the segment
-			var r = pointSum(lines[j][1], negative(p)); //p+r is the second
-
-			var t = crossProduct(pointSum(q, negative(p)), s) /
-					crossProduct(r, s);
-			var u = crossProduct(pointSum(q, negative(p)), r) /
-					crossProduct(r, s);
-
-			if (0 <= t && t <= 1 &&	0 <= u && u <= 1) {
-				var point = pointSum(p, [t*r[0], t*r[1]]);
-				x = Math.sqrt((point[0] - rx) * (point[0] - rx) +
-							  (point[1] - ry) * (point[1] - ry));
-
-				if (x < depths[i] || depths[i] == 0) {
-					depths[i] = x;
-				}
-			}
-		}
 	}
 }
 
