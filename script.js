@@ -1,4 +1,5 @@
 var fps = 60;
+var frameLength = 1000 / fps;
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var textureAtlas = document.createElement("canvas");
@@ -8,7 +9,7 @@ var lines = [];
 var rects = [];
 var depths = [];
 var ratios = []; //how far along the wall it is
-var columns = 600;
+var columns = 300;
 var columnWidth = Math.floor((canvas.width / columns) + 0.5);
 var depthConstant = 9000000;
 var wallHeight = 20;
@@ -39,8 +40,7 @@ var pixelByPixel = true;
 var wallTexture;
 
 setup();
-
-setInterval(run, 1000 / fps);
+run();
 
 function setup() {
 	setupLevel();
@@ -63,6 +63,7 @@ function setup() {
 function run() {
 	update();
 	draw();
+	setTimeout(run, frameLength);
 }
 
 function update() {
