@@ -268,21 +268,6 @@ function crossProduct(point1, point2) {
 	return point1[0] * point2[1] - point1[1] * point2[0];
 }
 
-function drawVisionLines() {
-	ctx.strokeStyle = "rgb(255,0,0)"
-	ctx.beginPath();
-	ctx.moveTo(px, py);
-	ctx.lineTo(px + 700 * Math.cos(pangle + visionCone/2),
-			   py + 700 * Math.sin(pangle + visionCone/2));
-	ctx.stroke();
-
-	ctx.beginPath();
-	ctx.moveTo(px, py);
-	ctx.lineTo(px + 700 * Math.cos(pangle - visionCone/2),
-			   py + 700 * Math.sin(pangle - visionCone/2));
-	ctx.stroke();
-}
-
 function keyDown() {
 	if (event.keyCode == 87 || event.keyCode == 75) {
 		keys.w = true;
