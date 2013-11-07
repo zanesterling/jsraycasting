@@ -24,12 +24,14 @@ var screenLength = canvas.width;
 var screenHeight = 100;
 var screenDist = (screenLength / 2) * Math.sin(visionCone / 2);
 
-var wDown = false;
-var aDown = false;
-var sDown = false;
-var dDown = false;
-var qDown = false;
-var eDown = false;
+var keys = {
+	 w : false,
+	 a : false,
+	 s : false,
+	 d : false,
+	 q : false,
+	 e : false
+}
 var flag = false;
 
 var debugGraphics = false;
@@ -66,29 +68,29 @@ function run() {
 }
 
 function update() {
-	if(wDown) {
+	if(keys.w) {
 		px += Math.cos(pangle) * speed;
 		py += Math.sin(pangle) * speed;
 	}
 
-	if(sDown) {
+	if(keys.s) {
 		px -= Math.cos(pangle) * speed;
 		py -= Math.sin(pangle) * speed;
 	}
 
-	if(eDown) {
+	if(keys.e) {
 		px -= Math.sin(pangle) * speed;
 		py += Math.cos(pangle) * speed;
 	}
 
-	if(qDown) {
+	if(keys.q) {
 		px += Math.sin(pangle) * speed;
 		py -= Math.cos(pangle) * speed;
 	}
 
-	if (aDown)
+	if (keys.a)
 		pangle -= turnSpeed;
-	if (dDown)
+	if (keys.d)
 		pangle += turnSpeed;
 }
 
@@ -283,17 +285,17 @@ function drawVisionLines() {
 
 function keyDown() {
 	if (event.keyCode == 87 || event.keyCode == 75) {
-		wDown = true;
+		keys.w = true;
 	} else if (event.keyCode == 65 || event.keyCode == 72) {
-		aDown = true;
+		keys.a = true;
 	} else if (event.keyCode == 83 || event.keyCode == 74) {
-		sDown = true;
+		keys.s = true;
 	} else if (event.keyCode == 68 || event.keyCode == 76) {
-		dDown = true;
+		keys.d = true;
 	} else if (event.keyCode == 81) {
-		qDown = true;
+		keys.q = true;
 	} else if (event.keyCode == 69) {
-		eDown = true;
+		keys.e = true;
 	}
 
 	if (event.keyCode == 80)
@@ -302,17 +304,16 @@ function keyDown() {
 
 function keyUp() {
 	if (event.keyCode == 87 || event.keyCode == 75) {
-		wDown = false;
+		keys.w = false;
 	} else if (event.keyCode == 65 || event.keyCode == 72) {
-		aDown = false;
+		keys.a = false;
 	} else if (event.keyCode == 83 || event.keyCode == 74) {
-		sDown = false;
+		keys.s = false;
 	} else if (event.keyCode == 68 || event.keyCode == 76) {
-		dDown = false;
+		keys.d = false;
 	} else if (event.keyCode == 81) {
-		qDown = false;
+		keys.q = false;
 	} else if (event.keyCode == 69) {
-		eDown = false;
+		keys.e = false;
 	}
 }
-
