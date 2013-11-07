@@ -113,7 +113,7 @@ function draw() {
 		ctx.fill();
 
 	} else {
-		perspectiveRayCast();
+		rayCast();
 
 		//scale color with depth
 		for (var i=0; i<columns; i++) {
@@ -166,7 +166,7 @@ function drawRay(i) {
 	}
 }
 
-function perspectiveRayCast() {
+function rayCast() {
 	for (var i=0; i<columns; i++)
 		depths[i] = 0;
 
