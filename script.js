@@ -7,9 +7,8 @@ var txctx = textureAtlas.getContext("2d");
 var lines = [];
 var rects = [];
 var depths = [];
-var colors = [];
 var ratios = []; //how far along the wall it is
-var columns = 300;
+var columns = 600;
 var columnWidth = Math.floor((canvas.width / columns) + 0.5);
 var depthConstant = 9000000;
 var wallHeight = 20;
@@ -37,7 +36,6 @@ var debugGraphics = false;
 var perspective = true;
 var pixelByPixel = true;
 
-var s = [];
 var wallTexture;
 
 setup();
@@ -47,10 +45,8 @@ setInterval(run, 1000 / fps);
 function setup() {
 	setupLevel();
 	
-	for (var i=0; i<columns; i++) {
+	for (var i=0; i<columns; i++)
 		depths.push(1000000);
-		s.push("");
-	}
 
 	canvas.focus();
 
@@ -132,17 +128,6 @@ function draw() {
 }
 
 function drawRay(i) {
-	var c;
-	if (depths[i] > 0)
-		c = Math.floor(220 - 220 / depthConstant * Math.pow(depths[i], 2));
-	else
-		c = 0;
-
-	var r = colors[i] == 0 ? c : 0;
-	var g = colors[i] == 1 ? c : 0;
-	var b = colors[i] == 2 ? c : 0;
-	s[i] = "rgb("+r+","+g+","+b+")";
-
 	ctx.fillStyle = "rgb(0,0,0)";
 	if (depths[i] == 0) {
 		ctx.fillStyle = "rgb(0,0,60)";
@@ -170,10 +155,6 @@ function drawRay(i) {
 
 		if (pixelByPixel) {
 			for (var j=0; j<10; j++) {
-				if (!flag) {
-					console.log(px);
-					flag = true;
-				}
 				var index = (Math.floor(ratios[i] * 10) + j * 10) * 4;
 				ctx.fillStyle = "rgb(" + px.data[index] + "," +
 								px.data[index + 1] + ","  + 
@@ -218,7 +199,6 @@ function parallelRayCast() {
 
 				if (x < depths[i] || depths[i] == 0) {
 					depths[i] = x;
-					colors[i] = lines[j][2];
 				}
 			}
 		}
@@ -260,7 +240,6 @@ function perspectiveRayCast() {
 				if (c < depths[i] || depths[i] == 0) {
 					ratios[i] = t;
 					depths[i] = c;
-					colors[i] = lines[j][2];
 				}
 			}
 		}
@@ -335,6 +314,5 @@ function keyUp() {
 	} else if (event.keyCode == 69) {
 		eDown = false;
 	}
-	console.log(event.keyCode);
 }
 

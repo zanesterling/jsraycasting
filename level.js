@@ -14,7 +14,6 @@ function setupLevel() {
 		ctx.drawImage(level, 0, 0);
 
 		var world = ctx.getImageData(0, 0, worldWidth, worldHeight);
-		console.log(world);
 
 		for (var i=0; i<worldHeight; i++)
 			for (var j=0; j<worldWidth; j++)
