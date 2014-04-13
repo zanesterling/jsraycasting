@@ -77,19 +77,19 @@ function update() {
 		py -= Math.sin(pangle) * speed;
 	}
 
-	if(keys.e) {
+	if(keys.d) {
 		px -= Math.sin(pangle) * speed;
 		py += Math.cos(pangle) * speed;
 	}
 
-	if(keys.q) {
+	if(keys.a) {
 		px += Math.sin(pangle) * speed;
 		py -= Math.cos(pangle) * speed;
 	}
 
-	if (keys.a)
+	if (keys.q)
 		pangle -= turnSpeed;
-	if (keys.d)
+	if (keys.e)
 		pangle += turnSpeed;
 }
 
